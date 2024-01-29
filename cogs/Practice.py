@@ -1,5 +1,8 @@
 import discord
 from discord.ext import commands
+from discord.ext.commands import has_permissions, MissingPermissions
+from discord import Member
+from discord.utils import get
 import requests
 import json
 from apikeys import *
@@ -94,6 +97,46 @@ class Practice(commands.Cog):
         if "lmao" in message.content:
             emoji = '\U0001F602'
             await message.add_reaction(emoji)
+    
+    #Roles
+    @commands.command()
+    @commands.has_permissions(manage_roles = True)
+    async def addRole(self, ctx, user : discord.Member, *, role : discord.Role):
+        if role in user.roles:
+            await ctx.send(f"{user.mention} already has the role, {role}")
+        else:
+            await user.add_roles(role)
+            await ctx.send(f"Added {role} to {user.mention}")
+
+            ''' testing purposes
+            try:
+                await user.add_roles(role)
+                print("Role added successfully")
+                await ctx.send(f"Added {role} to {user.mention}")
+            except Exception as e:
+                print(f"Error adding role: {e}")
+                await ctx.send(f"An error occurred while adding {role} to {user.mention}")
+            '''
+    
+    @addRole.error
+    async def role_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("You do not have permission to use this command")
+
+    @commands.command()
+    @commands.has_permissions(manage_roles = True)
+    async def removeRole(self, ctx, user : discord.Member, *, role : discord.Role):
+        
+        if role in user.roles:
+            await user.remove_roles(role)
+            await ctx.send(f"Removed {role} from {user.mention}")
+        else:
+            await ctx.send(f"{user.mention} does not have {role}")
+    
+    @removeRole.error
+    async def removeRole_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("You do not have permission to use this command")
 
 async def setup(client):
     await client.add_cog(Practice(client))
