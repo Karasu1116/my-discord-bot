@@ -1,14 +1,21 @@
 import discord
 from discord.ext import commands
 from discord.ext.commands import has_permissions, MissingPermissions
+from discord import app_commands
 from discord import Member
+from discord import Interaction
 from discord.utils import get
+from dotenv import load_dotenv
 import requests
 import json
-from apikeys import *
+import os
+
+load_dotenv()
 
 intents = discord.Intents.all()
 client = commands.AutoShardedBot(command_prefix = '!', intents=intents) #Initialize Bot
+
+CHANNEL_ID = os.getenv("CHANNEL_ID")
 
 class Practice(commands.Cog):
     
@@ -34,14 +41,14 @@ class Practice(commands.Cog):
         response = requests.get(anime_quote_url, headers=headers)
         data = json.loads(response.text)
 
-        channel = client.get_channel(BOTTEST)
+        channel = client.get_channel(CHANNEL_ID)
         await channel.send("Konnichiwa " + str(member) + "!")
         await channel.send(f"**Anime Name:** {data['animename']}\n**Quote:** *\"{data['quote']}\"*\n**Character:** {data['character']}")
 
     #Member Leaves
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        channel = client.get_channel(BOTTEST)
+        channel = client.get_channel(CHANNEL_ID)
         await channel.send("Sayonara " + str(member) + "!")
 
     #Reading Message
@@ -137,6 +144,16 @@ class Practice(commands.Cog):
     async def removeRole_error(self, ctx, error):
         if isinstance(error, commands.MissingPermissions):
             await ctx.send("You do not have permission to use this command")
+
+    #Slash commands
+    @client.tree.command(name="test")
+    async def hello(self, interaction: discord.Interaction):
+        await interaction.response.send_message(f"Hey {interaction.user.mention}! By order of the Peaky Blinders!" ) #ephemeral=True means only sender can see it
+
+    @client.tree.command(name="say")
+    @app_commands.describe(thing_to_say = "What should I say?")
+    async def say(self, interaction: discord.Interaction, thing_to_say: str):
+        await interaction.response.send_message(f"{interaction.user.name} said: '{thing_to_say}'")
 
 async def setup(client):
     await client.add_cog(Practice(client))

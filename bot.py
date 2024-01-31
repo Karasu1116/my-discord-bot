@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+from discord import Interaction
+from discord import app_commands
 import requests
 import json
 
@@ -17,6 +19,22 @@ async def on_ready(): #when ready, bot will execute function
     await client.change_presence(status=discord.Status.idle, activity=discord.Game('Sword Art Online'))
     print("Link Start!")
     print("-----------")
+    try:
+        synced = await client.tree.sync()
+        print(f"Synced {len(synced)} command(s)") #syncing commands to boy
+    except Exception as e:
+        print(e)
+
+#Slash commands
+@client.tree.command(name="test")
+async def hello(interaction: discord.Interaction):
+    await interaction.response.send_message(f"Hey {interaction.user.mention}! By order of the Peaky Blinders!" ) #ephemeral=True means only sender can see it
+
+@client.tree.command(name="say")
+@app_commands.describe(thing_to_say = "What should I say?")
+async def say(interaction: discord.Interaction, thing_to_say: str):
+    print(interaction.user)
+    await interaction.response.send_message(f"{interaction.user.name} said: '{thing_to_say}'")
 
 #Commands
 @client.command()

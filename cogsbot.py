@@ -2,18 +2,20 @@ import discord
 from discord.ext import commands
 import os
 import asyncio
+from dotenv import load_dotenv
 
-#Import Tokens
-from apikeys import *
+load_dotenv()
 
 #What the bot is interested in receiveing
 intents = discord.Intents.all()
-client = commands.AutoShardedBot(command_prefix = '!', intents=intents) #Initialize Bot
+bot = commands.AutoShardedBot(command_prefix = '!', intents=intents) #Initialize Bot
+
+TOKEN = os.getenv("TOKEN")
 
 #Start Up
-@client.event
+@bot.event
 async def on_ready():
-    await client.change_presence(status=discord.Status.idle, activity=discord.Game('Sword Art Online'))
+    await bot.change_presence(status=discord.Status.idle, activity=discord.Game('Sword Art Online'))
     print("Link Start!")
     print("-----------")
 
@@ -21,11 +23,12 @@ async def on_ready():
 async def load():
     for filename in os.listdir('./cogs'):
         if filename.endswith('.py'):
-            await client.load_extension(f'cogs.{filename[:-3]}')
+            await bot.load_extension(f'cogs.{filename[:-3]}')
 
 async def main():
     await load()
-    await client.start(TOKEN)
+    await bot.start(TOKEN)
+    await bot.tree.sync()
   
 #Run
 asyncio.run(main())
