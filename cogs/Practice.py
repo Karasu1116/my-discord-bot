@@ -50,16 +50,6 @@ class Practice(commands.Cog):
     async def on_member_remove(self, member):
         channel = client.get_channel(CHANNEL_ID)
         await channel.send("Sayonara " + str(member) + "!")
-
-    #Reading Message
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        
-        if "d2" in message.content or "destiny" in message.content:
-            await message.delete()
-            await message.channel.send("Doth not speaketh of that horrid game hither!")
-        else:
-            await client.process_commands(message)
         
     #Embed
     @commands.command()
@@ -96,14 +86,19 @@ class Practice(commands.Cog):
         channel = reaction.message.channel
         await channel.send(user.name + " removed: " + reaction.emoji)
 
+    #On_Message
     @commands.Cog.listener()
     async def on_message(self, message):
-
         if message.author == self.client.user:
             return
-        if "lmao" in message.content:
+        elif "lmao" in message.content:
             emoji = '\U0001F602'
             await message.add_reaction(emoji)
+        elif "d2" in message.content or "destiny" in message.content:
+            await message.delete()
+            await message.channel.send("Doth not speaketh of that horrid game hither!")
+        else:
+            await client.process_commands(message)
     
     #Roles
     @commands.command()

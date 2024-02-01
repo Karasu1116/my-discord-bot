@@ -19,6 +19,12 @@ async def on_ready():
     print("Link Start!")
     print("-----------")
 
+#sync commands
+@bot.command(name="sync") 
+async def sync(ctx):
+    synced = await bot.tree.sync()
+    print(f"Synced {len(synced)} command(s).")
+
 #cogs
 async def load():
     for filename in os.listdir('./cogs'):
@@ -28,7 +34,6 @@ async def load():
 async def main():
     await load()
     await bot.start(TOKEN)
-    await bot.tree.sync()
   
 #Run
 asyncio.run(main())
