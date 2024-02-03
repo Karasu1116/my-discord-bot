@@ -41,7 +41,7 @@ class Server(commands.Cog):
                 print(err)
                 await interaction.response.send_message("An error occured!")
 
-    #Stop_slash
+    #Stop
     @bot.tree.command(name="stop")
     async def stop_server(self, interaction: discord.Interaction):
         try:
@@ -53,6 +53,21 @@ class Server(commands.Cog):
         except Exception as err:
             print(err)
             await interaction.response.send_message("An error occured!")
+    
+    #Status
+    @bot.tree.command(name="status")
+    async def status_of_server(self, interaction: discord.Interaction):
+        try:
+            if interaction.channel_id == int(MC_CHANNEL_ID):
+                response = ec2.describe_instances(InstanceIds=[INSTANCE_ID])
+                status = response["Reservations"][0]["Instances"][0]["State"]["Name"]
+                await interaction.response.send_message(f"Server Status: {status}")
+            else:
+                await interaction.response.send_message("You do not have permission to use this command!")
+        except Exception as err:
+            print(err)
+            await interaction.response.send_message("An error occured!")
+
     
 
 async def setup(client):
